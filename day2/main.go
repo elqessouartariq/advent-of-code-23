@@ -28,15 +28,15 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		fmt.Println(getGameData(scanner.Text(), colors_map))
-		sum += getGameData(scanner.Text(), colors_map)
+		//fmt.Println(part1_getGameData(scanner.Text(), colors_map))
+		//sum += part1_getGameData(scanner.Text(), colors_map)
+		sum += part2_getGameData(scanner.Text(), colors_map)
 	}
 
 	if err := scanner.Err(); err != nil {
 			log.Fatal(err)
 	}
-
-	fmt.Println(sum)
+	fmt.Println("sum: ", sum)
 }
 
 func isGamePossible(colors_map map[string]int) bool {
@@ -48,7 +48,66 @@ func isGamePossible(colors_map map[string]int) bool {
 	return true
 }
 
-func getGameData(line string, colors_map map[string]int) int {
+func getGamePower(colors_map map[string]int) int {
+	fmt.Println(colors_map)
+	power := 1
+	for _, value := range colors_map {
+		power *= value
+	}
+	return power
+}
+
+func part2_getGameData(line string, colors_map map[string]int) int {
+	colors_map["red"] = 0
+	colors_map["green"] = 0
+	colors_map["blue"] = 0
+
+	// id := 0
+
+	re := regexp.MustCompile(`Game (\d+): (.*)`)
+	matches := re.FindStringSubmatch(line)
+	
+	if len(matches) > 0 {
+			_,_ = strconv.Atoi(matches[1])
+			sets := strings.Split(matches[2], "; ")   
+
+			reRed := regexp.MustCompile(`(\d+) red`)
+			reGreen := regexp.MustCompile(`(\d+) green`)
+			reBlue := regexp.MustCompile(`(\d+) blue`)
+
+			for _, set := range sets {
+					redMatches := reRed.FindStringSubmatch(set)
+					greenMatches := reGreen.FindStringSubmatch(set)
+					blueMatches := reBlue.FindStringSubmatch(set)
+
+					if len(redMatches) > 0 {
+							red, _ := strconv.Atoi(redMatches[1])
+							if red > colors_map["red"] {   
+								colors_map["red"] = red
+							}
+					}
+
+					if len(greenMatches) > 0 {
+							green, _ := strconv.Atoi(greenMatches[1]) 
+							if green > colors_map["green"] {
+								colors_map["green"] = green
+							}
+						}
+
+					if len(blueMatches) > 0 {
+							blue, _ := strconv.Atoi(blueMatches[1])
+							if blue > colors_map["blue"] {  
+								colors_map["blue"] = blue
+							}
+					}
+
+			}
+	}
+
+	return getGamePower(colors_map)
+}
+
+func part1_getGameData(line string, colors_map map[string]int) int {
 	id := 0
 
 	re := regexp.MustCompile(`Game (\d+): (.*)`)
