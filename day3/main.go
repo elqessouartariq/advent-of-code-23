@@ -107,11 +107,9 @@ func partTwo(lines [][]rune) int {
 		}
 	}
 
-	for key, nums := range pairs {
-		fmt.Println(key, nums)
+	for _, nums := range pairs {
 		if len(nums) == 2 {
 			prod += nums[0] * nums[1]
-			fmt.Println(prod)
 		}
 	}
 
