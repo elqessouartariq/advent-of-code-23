@@ -29,7 +29,7 @@ func main() {
 	}
 
 	fmt.Println("Sum:", partOne(lines))
-
+	fmt.Println("Product:", partTwo(lines))
 }
 
 func partOne(lines [][]rune) int {
@@ -65,12 +65,84 @@ func partOne(lines [][]rune) int {
 	}
 	return sum
 }
-
-func isDot(val rune) bool {
-	if val == '.' {
-		return true
+func partTwo(lines [][]rune) int {
+	type Position struct {
+		x int
+		y int
 	}
-	return false
+
+	prod := 0
+	pairs := make(map[Position][]int)
+	for i, line := range lines {
+		buffer := ""
+		found := false
+		var pos Position
+		for j, char := range line {
+			if unicode.IsDigit(char) {
+				buffer += string(char)
+				isAdj, l, k := isAdjacent2(lines, i, j)
+				if !found && isAdj {
+					found = true
+					pos = Position{l, k}
+				}
+			} else {
+				if found && buffer != "" {
+					num, err := strconv.Atoi(buffer)
+					if err != nil {
+						log.Fatal(err)
+					}
+					pairs[pos] = append(pairs[pos], num)
+					found = false
+				}
+				buffer = ""
+			}
+		}
+		if found && buffer != "" {
+			num, err := strconv.Atoi(buffer)
+			if err != nil {
+				log.Fatal(err)
+			}
+			pairs[pos] = append(pairs[pos], num)
+			found = false
+		}
+	}
+
+	for key, nums := range pairs {
+		fmt.Println(key, nums)
+		if len(nums) == 2 {
+			prod += nums[0] * nums[1]
+			fmt.Println(prod)
+		}
+	}
+
+	return prod
+}
+func isDot(val rune) bool {
+	return val == '.'
+}
+func isAdjacent2(lines [][]rune, i int, j int) (bool, int, int) {
+	directions := [][]int{
+		{-1, 0},
+		{-1, -1},
+		{-1, 1},
+		{0, -1},
+		{0, 1},
+		{1, 1},
+		{1, 0},
+		{1, -1},
+	}
+
+	for _, dir := range directions {
+		ni, nj := i+dir[0], j+dir[1]
+		if ni < 0 || nj < 0 || ni >= len(lines) || nj >= len(lines[ni]) {
+			continue
+		} else {
+			if lines[ni][nj] == '*' {
+				return true, ni, nj
+			}
+		}
+	}
+	return false, 0, 0
 }
 
 func isAdjacent(lines [][]rune, i int, j int) bool {
